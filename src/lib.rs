@@ -6,10 +6,8 @@
 #![no_std]
 #![deny(missing_docs)]
 
-use embedded_hal::digital::{
-    OutputPin,
-    PinState::{self, High, Low},
-};
+use embedded_hal::digital::v2::OutputPin;
+use embedded_hal::digital::v2::PinState::{self, High, Low};
 
 /// different positions of the motor.
 /// Depending on the state different pins have to be high
@@ -56,14 +54,14 @@ fn get_next_state(s: State) -> State {
         State::State5 => State::State6,
         State::State6 => State::State7,
         State::State7 => State::State8,
-        State::State8 => State::State0,
+        State::State8 => State::State1,
     }
 }
 
 fn get_prev_state(s: State) -> State {
     match s {
         State::State0 => State::State8,
-        State::State1 => State::State0,
+        State::State1 => State::State8,
         State::State2 => State::State1,
         State::State3 => State::State2,
         State::State4 => State::State3,
@@ -103,15 +101,14 @@ impl<P1: OutputPin, P2: OutputPin, P3: OutputPin, P4: OutputPin> StepperMotor
 {
     fn step(&mut self) {
         let states = get_pin_states(self.state);
-        self.in1.set_state(states[0]).unwrap();
-        self.in2.set_state(states[1]).unwrap();
-        self.in3.set_state(states[2]).unwrap();
-        self.in4.set_state(states[3]).unwrap();
+        self.in1.set_state(states[0]);
+        self.in2.set_state(states[1]);
+        self.in3.set_state(states[2]);
+        self.in4.set_state(states[3]);
         match self.dir {
             Direction::Normal => self.state = get_next_state(self.state),
             Direction::Reverse => self.state = get_prev_state(self.state),
         }
-        log::info!("New state: {:?}", self.state);
     }
 
     fn set_direction(&mut self, dir: Direction) {
