@@ -97,6 +97,7 @@ impl<P1: OutputPin, P2: OutputPin, P3: OutputPin, P4: OutputPin> ULN2003<P1, P2,
 }
 
 /// gets returned if en Error happens while stepping
+#[derive(Debug)]
 pub struct StepError;
 
 impl<P1: OutputPin, P2: OutputPin, P3: OutputPin, P4: OutputPin> StepperMotor
