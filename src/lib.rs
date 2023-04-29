@@ -96,19 +96,23 @@ impl<P1: OutputPin, P2: OutputPin, P3: OutputPin, P4: OutputPin> ULN2003<P1, P2,
     }
 }
 
+/// gets returned if en Error happens while stepping
+pub struct StepError;
+
 impl<P1: OutputPin, P2: OutputPin, P3: OutputPin, P4: OutputPin> StepperMotor
     for ULN2003<P1, P2, P3, P4>
 {
-    fn step(&mut self) {
+    fn step(&mut self) -> Result<(), StepError> {
         let states = get_pin_states(self.state);
-        self.in1.set_state(states[0]);
-        self.in2.set_state(states[1]);
-        self.in3.set_state(states[2]);
-        self.in4.set_state(states[3]);
+        set_state(&mut self.in1, states[0])?;
+        set_state(&mut self.in2, states[1])?;
+        set_state(&mut self.in3, states[2])?;
+        set_state(&mut self.in4, states[3])?;
         match self.dir {
             Direction::Normal => self.state = get_next_state(self.state),
             Direction::Reverse => self.state = get_prev_state(self.state),
         }
+        Ok(())
     }
 
     fn set_direction(&mut self, dir: Direction) {
@@ -116,10 +120,17 @@ impl<P1: OutputPin, P2: OutputPin, P3: OutputPin, P4: OutputPin> StepperMotor
     }
 }
 
+fn set_state<P: OutputPin>(pin: &mut P, state: PinState) -> Result<(), StepError> {
+    match pin.set_state(state) {
+        Ok(_) => Ok(()),
+        Err(_) => Err(StepError),
+    }
+}
+
 /// trait to prevent having to pass around the struct with all the generic arguments
 pub trait StepperMotor {
     /// Do a single step
-    fn step(&mut self);
+    fn step(&mut self) -> Result<(), StepError>;
     /// Set the stepping direction
     fn set_direction(&mut self, dir: Direction);
 }
