@@ -7,7 +7,7 @@ description = "A simple crate to use a 28BYJ-48 stepper motor with and ULN2003 D
 homepage = "https://github.com/MnlPhlp/uln2003"
 repository = "https://github.com/MnlPhlp/uln2003"
 readme = "README.md"
-keywords = ["uln2003","28BYJ-48","stepper motor","embeded","motor control"]
+keywords = ["uln2003","28BYJ-48","stepper_motor","embeded","motor_control"]
 categories = ["embedded"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
