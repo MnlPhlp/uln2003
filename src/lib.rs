@@ -97,7 +97,8 @@ where
 impl<P1: OutputPin, P2: OutputPin, P3: OutputPin, P4: OutputPin, UXX, D: DelayMs<UXX>>
     ULN2003<P1, P2, P3, P4, UXX, D>
 {
-    /// Create a new StepperMotor from the 4 pins connected to te uln2003 driver
+    /// Create a new StepperMotor from the 4 pins connected to te uln2003 driver.
+    /// The delay parameter is needed if you want to use the step_for function.
     pub fn new(in1: P1, in2: P2, in3: P3, in4: P4, delay: Option<D>) -> Self {
         Self {
             in1,
