@@ -119,6 +119,15 @@ impl<P1: OutputPin, P2: OutputPin, P3: OutputPin, P4: OutputPin> StepperMotor
     fn set_direction(&mut self, dir: Direction) {
         self.dir = dir;
     }
+    
+    fn stop(&mut self) -> Result<(), StepError> {
+        set_state(&mut self.in1, LOW)?;
+        set_state(&mut self.in2, LOW)?;
+        set_state(&mut self.in3, LOW)?;
+        set_state(&mut self.in4, LOW)?;
+        self.state = State::State0;
+        Ok(())
+    }
 }
 
 fn set_state<P: OutputPin>(pin: &mut P, state: PinState) -> Result<(), StepError> {
