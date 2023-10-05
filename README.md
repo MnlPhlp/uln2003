@@ -17,6 +17,7 @@ let mut motor = ULN2003::new(
     io.pins.gpio18.into_push_pull_output(),
     io.pins.gpio5.into_push_pull_output(),
     io.pins.gpio17.into_push_pull_output(),
+    delay
 );
 
 loop {
@@ -26,18 +27,31 @@ loop {
 ```
 
 ### Example using esp-idf-hal (std)
+
 ```rust
-let peripherals = Peripherals::take().unwrap();
+struct Delay;
+impl embedded_hal::blocking::delay::DelayMs<u32> for Delay {
+    fn delay_ms(&mut self, ms: u32) {
+        delay::FreeRtos::delay_ms(ms);
+    }
+}
+fn main(){
+    let peripherals = Peripherals::take().unwrap();
     let mut motor = ULN2003::new(
         PinDriver::output(peripherals.pins.gpio19).unwrap(),
         PinDriver::output(peripherals.pins.gpio18).unwrap(),
         PinDriver::output(peripherals.pins.gpio5).unwrap(),
         PinDriver::output(peripherals.pins.gpio17).unwrap(),
+        Some(Delay),
     );
+
+    // run for 100 steps with 5 ms between steps
+    motor.step_for(100, 5).unwrap();
 
     loop {
         motor.step();
         delay::FreeRtos::delay_ms(5);
     }
+}
 
 ```
