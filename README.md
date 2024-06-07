@@ -7,22 +7,26 @@ Both esp32 examples use the wiring as shown [in this tutorial](https://randomner
 
 ### Example on an esp32 using the esp-hal (no_std)
 ```rust
-let peripherals = Peripherals::take();
-let system = peripherals.DPORT.split();
-let clocks = ClockControl::boot_defaults(system.clock_control).freeze();
-let mut delay = Delay::new(&clocks);
-let io = IO::new(peripherals.GPIO, peripherals.IO_MUX);
-let mut motor = ULN2003::new(
-    io.pins.gpio19.into_push_pull_output(),
-    io.pins.gpio18.into_push_pull_output(),
-    io.pins.gpio5.into_push_pull_output(),
-    io.pins.gpio17.into_push_pull_output(),
-    delay
-);
+fn main() {
+    let peripherals = Peripherals::take();
+    let system = SystemControl::new(peripherals.SYSTEM);
 
-loop {
-    motor.step();
-    delay.delay_ms(5u32);
+    let clocks = ClockControl::max(system.clock_control).freeze();
+    let delay = Delay::new(&clocks);
+
+    let io = Io::new(peripherals.GPIO, peripherals.IO_MUX);
+    let mut motor = ULN2003::new(
+        Output::new(io.pins.gpio19, Level::Low),
+        Output::new(io.pins.gpio18, Level::Low),
+        Output::new(io.pins.gpio5, Level::Low),
+        Output::new(io.pins.gpio17, Level::Low),
+        Some(delay)
+    );
+
+    loop {
+        motor.step();
+        delay.delay_ms(5u32);
+    }
 }
 ```
 

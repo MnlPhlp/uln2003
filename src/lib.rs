@@ -6,11 +6,10 @@
 #![no_std]
 #![deny(missing_docs)]
 
-use core::marker::PhantomData;
+use embedded_hal::delay::DelayNs;
 
-use embedded_hal::blocking::delay::DelayMs;
-use embedded_hal::digital::v2::OutputPin;
-use embedded_hal::digital::v2::PinState::{self, High, Low};
+use embedded_hal::digital::{OutputPin, PinState};
+use embedded_hal::digital::PinState::{High, Low};
 
 /// different positions of the motor.
 /// Depending on the state different pins have to be high
@@ -76,13 +75,13 @@ fn get_prev_state(s: State) -> State {
 }
 
 /// Struct representing a Stepper motor with the 4 driver pins
-pub struct ULN2003<P1, P2, P3, P4, UXX, D>
+pub struct ULN2003<P1, P2, P3, P4, D>
 where
     P1: OutputPin,
     P2: OutputPin,
     P3: OutputPin,
     P4: OutputPin,
-    D: DelayMs<UXX>,
+    D: DelayNs,
 {
     in1: P1,
     in2: P2,
@@ -91,11 +90,10 @@ where
     state: State,
     dir: Direction,
     delay: Option<D>,
-    _uxx: PhantomData<UXX>,
 }
 
-impl<P1: OutputPin, P2: OutputPin, P3: OutputPin, P4: OutputPin, UXX, D: DelayMs<UXX>>
-    ULN2003<P1, P2, P3, P4, UXX, D>
+impl<P1: OutputPin, P2: OutputPin, P3: OutputPin, P4: OutputPin, D: DelayNs>
+    ULN2003<P1, P2, P3, P4, D>
 {
     /// Create a new StepperMotor from the 4 pins connected to te uln2003 driver.
     /// The delay parameter is needed if you want to use the step_for function.
@@ -108,7 +106,6 @@ impl<P1: OutputPin, P2: OutputPin, P3: OutputPin, P4: OutputPin, UXX, D: DelayMs
             state: State::State0,
             dir: Direction::Normal,
             delay,
-            _uxx: PhantomData,
         }
     }
 
@@ -126,8 +123,8 @@ impl<P1: OutputPin, P2: OutputPin, P3: OutputPin, P4: OutputPin, UXX, D: DelayMs
 #[derive(Debug)]
 pub struct StepError;
 
-impl<P1: OutputPin, P2: OutputPin, P3: OutputPin, P4: OutputPin, UXX: Copy, D: DelayMs<UXX>>
-    StepperMotor<UXX> for ULN2003<P1, P2, P3, P4, UXX, D>
+impl<P1: OutputPin, P2: OutputPin, P3: OutputPin, P4: OutputPin, D: DelayNs>
+    StepperMotor for ULN2003<P1, P2, P3, P4, D>
 {
     fn step(&mut self) -> Result<(), StepError> {
         match self.dir {
@@ -135,6 +132,17 @@ impl<P1: OutputPin, P2: OutputPin, P3: OutputPin, P4: OutputPin, UXX: Copy, D: D
             Direction::Reverse => self.state = get_prev_state(self.state),
         }
         self.apply_state()?;
+        Ok(())
+    }
+
+    fn step_for(&mut self, steps: i32, ms: u32) -> Result<(), StepError> {
+        if self.delay.is_none() {
+            return Err(StepError);
+        }
+        for _ in 0..steps {
+            self.step()?;
+            self.delay.as_mut().unwrap().delay_ms(ms);
+        }
         Ok(())
     }
 
@@ -147,17 +155,6 @@ impl<P1: OutputPin, P2: OutputPin, P3: OutputPin, P4: OutputPin, UXX: Copy, D: D
         self.apply_state()?;
         Ok(())
     }
-
-    fn step_for(&mut self, steps: i32, ms: UXX) -> Result<(), StepError> {
-        if self.delay.is_none() {
-            return Err(StepError);
-        }
-        for _ in 0..steps {
-            self.step()?;
-            self.delay.as_mut().unwrap().delay_ms(ms);
-        }
-        Ok(())
-    }
 }
 
 fn set_state<P: OutputPin>(pin: &mut P, state: PinState) -> Result<(), StepError> {
@@ -168,11 +165,11 @@ fn set_state<P: OutputPin>(pin: &mut P, state: PinState) -> Result<(), StepError
 }
 
 /// trait to prevent having to pass around the struct with all the generic arguments
-pub trait StepperMotor<UXX> {
+pub trait StepperMotor {
     /// Do a single step
     fn step(&mut self) -> Result<(), StepError>;
     /// Do multiple steps with a given delay in ms
-    fn step_for(&mut self, steps: i32, delay: UXX) -> Result<(), StepError>;
+    fn step_for(&mut self, steps: i32, delay: u32) -> Result<(), StepError>;
     /// Set the stepping direction
     fn set_direction(&mut self, dir: Direction);
     /// Stoping sets all pins low
