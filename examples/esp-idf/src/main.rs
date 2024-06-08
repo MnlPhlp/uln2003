@@ -1,12 +1,12 @@
+use esp_idf_hal::delay;
 use esp_idf_hal::gpio::PinDriver;
 use esp_idf_hal::prelude::*;
-use esp_idf_sys as _; // If using the `binstart` feature of `esp-idf-sys`, always keep this module imported
 use uln2003::{StepperMotor, ULN2003};
 
 fn main() {
     // It is necessary to call this function once. Otherwise some patches to the runtime
     // implemented by esp-idf-sys might not link properly. See https://github.com/esp-rs/esp-idf-template/issues/71
-    esp_idf_sys::link_patches();
+    esp_idf_svc::sys::link_patches();
     // Bind the log crate to the ESP Logging facilities
     esp_idf_svc::log::EspLogger::initialize_default();
     let peripherals = Peripherals::take().unwrap();
@@ -15,7 +15,7 @@ fn main() {
         PinDriver::output(peripherals.pins.gpio18).unwrap(),
         PinDriver::output(peripherals.pins.gpio5).unwrap(),
         PinDriver::output(peripherals.pins.gpio17).unwrap(),
-        Some(esp_idf_hal::delay::Delay),
+        Some(delay::Delay::new_default()),
     );
 
     // run for 100 steps with 5 ms between steps

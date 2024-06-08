@@ -4,7 +4,7 @@ version = "0.1.0"
 authors = ["MnlPhlp <online@philipp-manuel.de>"]
 edition = "2021"
 resolver = "2"
-rust-version = "1.66"
+rust-version = "1.71"
 
 [profile.release]
 opt-level = "s"
@@ -15,12 +15,11 @@ opt-level = "z"
 
 [dependencies]
 log = { version = "0.4.17", default-features = false }
-esp-idf-sys = { version = "0.34", default-features = false }
-esp-idf-hal = { version = "0.43", optional = true, default-features = false }
-esp-idf-svc = { version = "0.48", optional = true, default-features = false , features = ["std", "binstart"] }
+esp-idf-hal = { version = "0.43" }
+esp-idf-svc = { version = "0.48", default-features = false , features = ["std", "binstart", "alloc"] }
 embedded-hal = "1.0.0"
 
 uln2003 = { path = "../.." }
 
 [build-dependencies]
-embuild = "0.31.2"
+embuild = { version = "0.31", features = ["espidf"] }
