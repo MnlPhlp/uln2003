@@ -1,6 +1,6 @@
 [package]
 name = "uln2003"
-version = "0.2.1"
+version = "0.3.0"
 edition = "2021"
 license = "MIT OR Apache-2.0"
 description = "A simple crate to use a 28BYJ-48 stepper motor with and ULN2003 Driver on any hardware implementing embedded_hal"
@@ -13,4 +13,4 @@ categories = ["embedded"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-embedded-hal = "0.2.7"
+embedded-hal = "1.0.0"
