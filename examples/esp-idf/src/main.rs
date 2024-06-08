@@ -1,15 +1,7 @@
-use esp_idf_hal::delay;
 use esp_idf_hal::gpio::PinDriver;
 use esp_idf_hal::prelude::*;
 use esp_idf_sys as _; // If using the `binstart` feature of `esp-idf-sys`, always keep this module imported
 use uln2003::{StepperMotor, ULN2003};
-
-struct Delay;
-impl embedded_hal::blocking::delay::DelayMs<u32> for Delay {
-    fn delay_ms(&mut self, ms: u32) {
-        delay::FreeRtos::delay_ms(ms);
-    }
-}
 
 fn main() {
     // It is necessary to call this function once. Otherwise some patches to the runtime
@@ -23,7 +15,7 @@ fn main() {
         PinDriver::output(peripherals.pins.gpio18).unwrap(),
         PinDriver::output(peripherals.pins.gpio5).unwrap(),
         PinDriver::output(peripherals.pins.gpio17).unwrap(),
-        Some(Delay),
+        Some(esp_idf_hal::delay::Delay),
     );
 
     // run for 100 steps with 5 ms between steps
