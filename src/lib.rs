@@ -155,6 +155,14 @@ impl<P1: OutputPin, P2: OutputPin, P3: OutputPin, P4: OutputPin, D: DelayNs>
         self.apply_state()?;
         Ok(())
     }
+
+    fn power_off(&mut self) -> Result<(), StepError> {
+        set_state(&mut self.in1, Low)?;
+        set_state(&mut self.in2, Low)?;
+        set_state(&mut self.in3, Low)?;
+        set_state(&mut self.in4, Low)?;
+        Ok(())
+    }
 }
 
 fn set_state<P: OutputPin>(pin: &mut P, state: PinState) -> Result<(), StepError> {
@@ -172,8 +180,10 @@ pub trait StepperMotor {
     fn step_for(&mut self, steps: i32, delay: u32) -> Result<(), StepError>;
     /// Set the stepping direction
     fn set_direction(&mut self, dir: Direction);
-    /// Stoping sets all pins low
+    /// Stoping sets all pins low, resets the steps state
     fn stop(&mut self) -> Result<(), StepError>;
+    /// Power off the motor, preserve the steps state
+    fn power_off(&mut self) -> Result<(), StepError>;
 }
 
 /// Direction the motor turns in. Just reverses the order of the internal states.
