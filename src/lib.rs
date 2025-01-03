@@ -180,9 +180,9 @@ pub trait StepperMotor {
     fn step_for(&mut self, steps: i32, delay: u32) -> Result<(), StepError>;
     /// Set the stepping direction
     fn set_direction(&mut self, dir: Direction);
-    /// Stoping sets all pins low, resets the steps state
+    /// Stoping sets all pins low and resets the inner state. First few calls to step might not work as expected
     fn stop(&mut self) -> Result<(), StepError>;
-    /// Power off the motor, preserve the steps state
+    /// Same as stop, but preserve the steps state, so calling step after this should continue as expected
     fn power_off(&mut self) -> Result<(), StepError>;
 }
 
