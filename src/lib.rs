@@ -176,7 +176,6 @@ pub trait StepperMotor {
     fn set_direction(&mut self, dir: Direction);
     /// Stoping sets all pins low
     fn stop(&mut self) -> Result<(), StepError>;
-
 }
 
 /// Direction the motor turns in. Just reverses the order of the internal states.
