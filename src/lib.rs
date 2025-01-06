@@ -151,8 +151,10 @@ impl<P1: OutputPin, P2: OutputPin, P3: OutputPin, P4: OutputPin, D: DelayNs>
     }
 
     fn stop(&mut self) -> Result<(), StepError> {
-        self.state = State::State0;
-        self.apply_state()?;
+        set_state(&mut self.in1, Low)?;
+        set_state(&mut self.in2, Low)?;
+        set_state(&mut self.in3, Low)?;
+        set_state(&mut self.in4, Low)?;
         Ok(())
     }
 }
